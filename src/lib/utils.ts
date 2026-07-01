@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPriceLakh(price: number): string {
-  return `₹${price.toFixed(2)} Lakh`;
+  return `Rs. ${price.toFixed(2)} lakh`;
 }
 
 export function formatMileage(mileage: number, fuelType: string): string {

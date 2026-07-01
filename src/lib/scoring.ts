@@ -11,8 +11,8 @@ function normalize(value: number, min: number, max: number): number {
 
 function scorePrice(car: CarRecord, prefs: UserPreferences, pool: CarRecord[]): number {
   const midBudget = (prefs.budgetMin + prefs.budgetMax) / 2;
-  const inRange =
-    car.priceLakh >= prefs.budgetMin && car.priceLakh <= prefs.budgetMax;
+  const inRange = car.priceLakh >= prefs.budgetMin && car.priceLakh <= prefs.budgetMax;
+
   if (!inRange) {
     const distance = Math.min(
       Math.abs(car.priceLakh - prefs.budgetMin),
@@ -20,13 +20,15 @@ function scorePrice(car: CarRecord, prefs: UserPreferences, pool: CarRecord[]): 
     );
     return Math.max(0, 1 - distance / prefs.budgetMax);
   }
+
   const prices = pool.map((c) => c.priceLakh);
   const affordability = 1 - normalize(car.priceLakh, Math.min(...prices), midBudget);
-  return 0.6 + affordability * 0.4;
+  return 0.6 + Math.max(0, affordability) * 0.4;
 }
 
 function scoreMileage(car: CarRecord, pool: CarRecord[]): number {
-  const mileages = pool.map((c) => c.mileageKmpl);
+  const comparable = pool.filter((c) => c.fuelType === car.fuelType);
+  const mileages = (comparable.length ? comparable : pool).map((c) => c.mileageKmpl);
   return normalize(car.mileageKmpl, Math.min(...mileages), Math.max(...mileages));
 }
 
@@ -48,23 +50,25 @@ function buildReasons(car: CarRecord, prefs: UserPreferences, scores: Record<Pri
   const reasons: string[] = [];
 
   if (car.priceLakh <= prefs.budgetMax && car.priceLakh >= prefs.budgetMin) {
-    reasons.push(`Fits your ₹${prefs.budgetMin}–${prefs.budgetMax} Lakh budget at ₹${car.priceLakh} Lakh`);
+    reasons.push(
+      `Fits your Rs. ${prefs.budgetMin}-${prefs.budgetMax} lakh budget at Rs. ${car.priceLakh} lakh`
+    );
   }
 
   if (prefs.priorities.includes("mileage") && scores.mileage >= 0.7) {
     reasons.push(
       car.fuelType === "Electric"
-        ? `Strong range of ${car.mileageKmpl} km per charge`
-        : `Excellent fuel efficiency at ${car.mileageKmpl} kmpl`
+        ? `Strong EV range of ${car.mileageKmpl} km per charge`
+        : `Efficient running at ${car.mileageKmpl} kmpl`
     );
   }
 
   if (prefs.priorities.includes("safety") && car.safetyRating >= 4) {
-    reasons.push(`${car.safetyRating}-star safety rating — among the safest in this segment`);
+    reasons.push(`${car.safetyRating}-star safety rating, strong for this segment`);
   }
 
   if (prefs.priorities.includes("features") && countFeatures(car.features) >= 5) {
-    reasons.push(`Well-equipped: ${car.features.split(",").slice(0, 3).join(", ")} and more`);
+    reasons.push(`Well-equipped with ${car.features.split(",").slice(0, 3).join(", ")} and more`);
   }
 
   if (prefs.priorities.includes("reviews") && car.reviewScore >= 4.2) {
@@ -76,11 +80,11 @@ function buildReasons(car: CarRecord, prefs: UserPreferences, scores: Record<Pri
   }
 
   if (prefs.seating && car.seating >= prefs.seating) {
-    reasons.push(`Seats ${car.seating} — fits your family size`);
+    reasons.push(`Seats ${car.seating}, so it fits your family size`);
   }
 
   if (reasons.length === 0) {
-    reasons.push(`Solid ${car.bodyType} option from ${car.make} with balanced specs`);
+    reasons.push(`Balanced ${car.bodyType} option from ${car.make}`);
   }
 
   return reasons.slice(0, 4);
@@ -89,10 +93,26 @@ function buildReasons(car: CarRecord, prefs: UserPreferences, scores: Record<Pri
 const PRIORITY_WEIGHTS: Record<Priority, number> = {
   price: 1.2,
   mileage: 1.1,
-  safety: 1.0,
+  safety: 1,
   features: 0.9,
   reviews: 0.8,
 };
+
+export function normalizePreferences(input: Partial<UserPreferences> = {}): UserPreferences {
+  const rawBudgetMin = Number.isFinite(input.budgetMin) ? Number(input.budgetMin) : 5;
+  const rawBudgetMax = Number.isFinite(input.budgetMax) ? Number(input.budgetMax) : 25;
+  const budgetMin = Math.max(3, Math.min(rawBudgetMin, rawBudgetMax - 1));
+  const budgetMax = Math.min(55, Math.max(rawBudgetMax, budgetMin + 1));
+
+  return {
+    budgetMin,
+    budgetMax,
+    bodyTypes: input.bodyTypes ?? [],
+    fuelTypes: input.fuelTypes ?? [],
+    priorities: input.priorities?.length ? input.priorities.slice(0, 3) : ["price", "mileage", "safety"],
+    seating: input.seating,
+  };
+}
 
 export function filterCars(cars: CarRecord[], prefs: UserPreferences): CarRecord[] {
   return cars.filter((car) => {
@@ -121,10 +141,10 @@ export function scoreCars(cars: CarRecord[], prefs: UserPreferences): ScoredCar[
 
     let totalWeight = 0;
     let weightedSum = 0;
-    for (const p of priorities) {
-      const w = PRIORITY_WEIGHTS[p];
-      weightedSum += dimensionScores[p] * w;
-      totalWeight += w;
+    for (const priority of priorities) {
+      const weight = PRIORITY_WEIGHTS[priority];
+      weightedSum += dimensionScores[priority] * weight;
+      totalWeight += weight;
     }
 
     const matchScore = Math.round((weightedSum / totalWeight) * 100);
@@ -133,16 +153,16 @@ export function scoreCars(cars: CarRecord[], prefs: UserPreferences): ScoredCar[
     return { ...car, matchScore, reasons };
   });
 
-  return scored.sort((a, b) => b.matchScore - a.matchScore);
+  return scored.sort((a, b) => b.matchScore - a.matchScore || a.priceLakh - b.priceLakh);
 }
 
 export function parseNaturalLanguage(input: string): Partial<UserPreferences> {
   const text = input.toLowerCase();
   const prefs: Partial<UserPreferences> = { priorities: [] };
 
-  const budgetMatch = text.match(/(\d+)\s*(?:lakh|lac|l)\b/g);
+  const budgetMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:lakh|lac|l)\b/g);
   if (budgetMatch) {
-    const values = budgetMatch.map((m) => parseFloat(m));
+    const values = budgetMatch.map((match) => parseFloat(match));
     if (text.includes("under") || text.includes("below") || text.includes("max")) {
       prefs.budgetMax = Math.max(...values);
       prefs.budgetMin = Math.max(3, prefs.budgetMax * 0.5);
@@ -170,12 +190,12 @@ export function parseNaturalLanguage(input: string): Partial<UserPreferences> {
   if (fuelTypes.length) prefs.fuelTypes = fuelTypes;
 
   const priorities: Priority[] = [];
-  if (text.includes("mileage") || text.includes("fuel")) priorities.push("mileage");
+  if (text.includes("mileage") || text.includes("fuel") || text.includes("running cost")) priorities.push("mileage");
   if (text.includes("safe") || text.includes("safety")) priorities.push("safety");
-  if (text.includes("cheap") || text.includes("budget") || text.includes("affordable")) priorities.push("price");
-  if (text.includes("feature") || text.includes("luxury")) priorities.push("features");
+  if (text.includes("cheap") || text.includes("budget") || text.includes("affordable") || text.includes("value")) priorities.push("price");
+  if (text.includes("feature") || text.includes("luxury") || text.includes("sunroof")) priorities.push("features");
   if (text.includes("review") || text.includes("rating")) priorities.push("reviews");
-  if (priorities.length) prefs.priorities = priorities;
+  if (priorities.length) prefs.priorities = Array.from(new Set(priorities)).slice(0, 3);
 
   if (text.includes("family") || text.includes("7 seater") || text.includes("7-seater")) {
     prefs.seating = 7;

@@ -8,21 +8,21 @@ datasource db {
 }
 
 model Car {
-  id            String   @id @default(cuid())
-  make          String
-  model         String
-  variant       String
-  bodyType      String
-  fuelType      String
-  priceLakh     Float
-  mileageKmpl   Float
-  safetyRating  Int
-  seating       Int
-  transmission  String
-  features      String
-  reviewScore   Float
-  imageEmoji    String   @default("🚗")
-  createdAt     DateTime @default(now())
+  id             String          @id @default(cuid())
+  make           String
+  model          String
+  variant        String
+  bodyType       String
+  fuelType       String
+  priceLakh      Float
+  mileageKmpl    Float
+  safetyRating   Int
+  seating        Int
+  transmission   String
+  features       String
+  reviewScore    Float
+  imageEmoji     String          @default("CAR")
+  createdAt      DateTime        @default(now())
   shortlistItems ShortlistItem[]
 }
 

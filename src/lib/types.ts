@@ -42,9 +42,9 @@ export interface CompareField {
 export const BODY_TYPES: BodyType[] = ["SUV", "Sedan", "Hatchback", "MPV"];
 export const FUEL_TYPES: FuelType[] = ["Petrol", "Diesel", "Electric", "CNG"];
 export const PRIORITIES: { id: Priority; label: string; description: string }[] = [
-  { id: "price", label: "Best Value", description: "Lower price within your budget" },
-  { id: "mileage", label: "Fuel Efficiency", description: "Higher mileage / range" },
-  { id: "safety", label: "Safety", description: "Higher crash-test ratings" },
-  { id: "features", label: "Features", description: "More comfort & tech" },
-  { id: "reviews", label: "Owner Reviews", description: "Higher user ratings" },
+  { id: "price", label: "Best value", description: "Lower on-road stretch inside your budget" },
+  { id: "mileage", label: "Running cost", description: "Higher mileage or EV range" },
+  { id: "safety", label: "Safety", description: "Higher crash-test confidence" },
+  { id: "features", label: "Features", description: "More comfort and tech" },
+  { id: "reviews", label: "Owner reviews", description: "Higher owner satisfaction" },
 ];

@@ -19,16 +19,14 @@ export default function ResultsPage() {
 
   useEffect(() => {
     const stored = sessionStorage.getItem("carmatch_results");
-    if (stored) {
-      setData(JSON.parse(stored));
-    }
+    if (stored) setData(JSON.parse(stored));
     fetchShortlist();
   }, []);
 
   const fetchShortlist = async () => {
     const res = await fetch("/api/shortlist");
     const json = await res.json();
-    setShortlistIds(new Set(json.items.map((i: { car: { id: string } }) => i.car.id)));
+    setShortlistIds(new Set(json.items.map((item: { car: { id: string } }) => item.car.id)));
   };
 
   const addToShortlist = async (carId: string) => {
@@ -39,21 +37,24 @@ export default function ResultsPage() {
     });
     const json = await res.json();
     if (res.ok) {
-      setShortlistIds(new Set(json.items.map((i: { car: { id: string } }) => i.car.id)));
-      setToast("Added to shortlist!");
-      setTimeout(() => setToast(null), 2000);
+      setShortlistIds(new Set(json.items.map((item: { car: { id: string } }) => item.car.id)));
+      showToast("Saved to shortlist");
     } else {
-      setToast(json.error ?? "Could not add");
-      setTimeout(() => setToast(null), 3000);
+      showToast(json.error ?? "Could not save");
     }
+  };
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 2500);
   };
 
   if (!data) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <p className="text-slate-600">No results yet.</p>
+        <p className="text-stone-600">No recommendations yet.</p>
         <Link href="/find" className="mt-4 inline-block text-brand-600 hover:underline">
-          Start the car finder →
+          Start the car finder
         </Link>
       </div>
     );
@@ -62,36 +63,40 @@ export default function ResultsPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       {toast && (
-        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-medium text-white shadow-lg">
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-ink-900 px-5 py-3 text-sm font-medium text-white shadow-lg">
           {toast}
         </div>
       )}
 
-      <Link
-        href="/find"
-        className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-brand-600"
-      >
+      <Link href="/find" className="inline-flex items-center gap-1 text-sm text-stone-500 hover:text-brand-600">
         <ArrowLeft className="h-4 w-4" />
         Refine preferences
       </Link>
 
-      <h1 className="mt-4 text-2xl font-bold text-slate-900">Your top matches</h1>
-      <p className="mt-2 text-slate-600">
-        Found {data.totalMatches} cars in your range. Here are the best {data.recommendations.length}{" "}
-        for your priorities.
-      </p>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-ink-900">Your top matches</h1>
+          <p className="mt-2 text-stone-600">
+            Found {data.totalMatches} cars close to the brief. Showing the best {data.recommendations.length}.
+          </p>
+        </div>
+        <div className="rounded-lg bg-white px-4 py-3 text-sm shadow-sm ring-1 ring-stone-200">
+          <span className="font-semibold text-ink-900">Budget:</span> Rs. {data.preferences.budgetMin}-
+          {data.preferences.budgetMax} lakh
+        </div>
+      </div>
 
-      <div className="mt-6 flex gap-3">
+      <div className="mt-6 flex flex-wrap gap-3">
         <Link
           href="/shortlist"
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50"
+          className="inline-flex min-h-10 items-center rounded-lg border border-stone-200 bg-white px-4 text-sm font-medium hover:bg-stone-50"
         >
           View shortlist ({shortlistIds.size})
         </Link>
         {shortlistIds.size >= 2 && (
           <Link
             href="/compare"
-            className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-brand-600 px-4 text-sm font-semibold text-white hover:bg-brand-700"
           >
             <GitCompare className="h-4 w-4" />
             Compare saved cars
@@ -100,11 +105,11 @@ export default function ResultsPage() {
       </div>
 
       <div className="mt-8 space-y-5">
-        {data.recommendations.map((car, i) => (
+        {data.recommendations.map((car, index) => (
           <CarCard
             key={car.id}
             car={car}
-            rank={i + 1}
+            rank={index + 1}
             onAddToShortlist={addToShortlist}
             isInShortlist={shortlistIds.has(car.id)}
           />

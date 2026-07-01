@@ -1,8 +1,8 @@
-# CarMatch — Smart Car Shortlist Builder
+# CarMatch - Smart Car Shortlist Builder
 
-A full-stack web app that helps confused car buyers go from *"I don't know what to buy"* to a **confident shortlist** — built for the CarDekho Group AI-Native take-home assignment.
+A full-stack web app for the CarDekho Group AI-native take-home assignment. It helps a confused buyer move from a rough brief to a ranked, explainable shortlist of Indian-market cars.
 
-## Quick start (< 2 minutes)
+## Quick Start
 
 ```bash
 npm install
@@ -11,80 +11,40 @@ npm run db:seed
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open `http://localhost:3000`.
 
-## What I built and why
+## What It Does
 
-**CarMatch** is a guided car finder with three core flows:
+1. Guided preference wizard for budget, seating, body type, fuel type, and ranking priorities.
+2. Plain-English buyer note parsing for quick prompts like "family SUV under 15 lakh with good safety".
+3. Backend scoring engine that ranks cars and explains why each match fits.
+4. Cookie-backed shortlist with a 5-car limit.
+5. Side-by-side comparison for 2-3 saved cars with winner highlights.
 
-1. **Preference wizard** — budget, body type, fuel, seating, and priorities (mileage, safety, value, features, reviews)
-2. **Ranked recommendations** — backend scoring engine ranks 35 Indian-market cars and explains *why* each fits
-3. **Shortlist + compare** — save up to 5 cars, compare 2–3 side-by-side with winner highlights
+## Tech Stack
 
-**Why this scope:** The assignment brief is deliberately vague. I chose the highest-value path for a confused buyer: narrow options fast, explain the reasoning, and let them compare finalists. A chatbot or full catalog browser would eat the 2–3 hour budget without shipping end-to-end.
+| Layer | Choice |
+| --- | --- |
+| Framework | Next.js 15 + TypeScript |
+| Styling | Tailwind CSS v4 |
+| Database | SQLite + Prisma |
+| Persistence | HTTP-only cookie session for shortlist |
 
-### What I deliberately cut
-
-- User authentication (session cookie for shortlist is enough for MVP)
-- Real CarDekho API / live pricing
-- LLM API dependency (rule-based NL parser instead — works offline, no API keys)
-- Pixel-perfect UI polish
-- Comprehensive test suite (one scoring util could be added in +30 min)
-
-## Tech stack
-
-| Layer | Choice | Why |
-|-------|--------|-----|
-| Framework | Next.js 15 + TypeScript | Full-stack in one repo, fast deploy |
-| Styling | Tailwind CSS v4 | Rapid, clean UI |
-| Database | SQLite + Prisma | Zero-config persistence, real backend |
-| Deploy | Vercel-ready | `git push` → live |
-
-## API routes
+## API Routes
 
 | Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/cars` | GET | List all cars |
-| `/api/recommend` | POST | Score & rank cars by preferences |
-| `/api/shortlist` | GET/POST/DELETE | Persist shortlist (cookie session) |
-| `/api/compare` | POST | Side-by-side spec comparison |
+| --- | --- | --- |
+| `/api/cars` | GET | List seeded cars |
+| `/api/recommend` | POST | Normalize preferences, score cars, return ranked matches |
+| `/api/shortlist` | GET/POST/DELETE | Manage the user's shortlist |
+| `/api/compare` | POST | Compare 2-3 selected cars |
 
-## AI tools vs manual
+## Product Notes
 
-| Task | Delegated to AI | Done manually |
-|------|-----------------|---------------|
-| Project scaffolding & boilerplate | ✅ Cursor | Reviewed structure |
-| Car seed dataset | ✅ Generated 35 cars | Verified realistic Indian specs |
-| Scoring algorithm design | ✅ Drafted | Reviewed weights & edge cases |
-| UI components | ✅ Generated | Tweaked layout & copy |
-| Product scoping | Manual | Chose wizard over chatbot |
-| Prisma schema | ✅ Drafted | Verified relations |
+The assignment is intentionally open-ended, so I scoped for a complete buyer journey instead of a broad catalog clone. The scoring is rule-based rather than LLM-dependent, which keeps the demo deterministic and easy to run without API keys.
 
-**Where AI helped most:** Speed on boilerplate, seed data, and repetitive UI components.
+## Submission Checklist
 
-**Where AI got in the way:** Initial `create-next-app` conflict with existing PDF; had to scaffold manually. Scoring edge cases (budget overflow, empty filters) needed manual review.
-
-## If I had 4 more hours
-
-- Shareable shortlist URL
-- Playwright E2E test for wizard → results flow
-- Turso/libSQL for production SQLite on Vercel
-- OpenAI integration for richer NL preference parsing
-- Re-sort results by price/mileage on results page
-
-## Project structure
-
-```
-src/
-  app/           # Pages + API routes
-  components/    # CarCard, Header
-  lib/           # Scoring engine, Prisma, types
-prisma/
-  schema.prisma  # Car, Shortlist models
-  seed.ts        # 35 Indian-market cars
-```
-
-## License
-
-MIT — built as a take-home assignment submission.
-# car-dekho-tech-assessment
+- GitHub repo: publish this repository or invite the reviewers.
+- Live URL: deploy to Vercel, then set `DATABASE_URL` for the deployment environment.
+- Screen recording: show the flow from buyer brief to recommendations, shortlist, and comparison.

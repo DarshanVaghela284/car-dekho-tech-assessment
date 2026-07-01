@@ -1,70 +1,98 @@
 import Link from "next/link";
-import { ArrowRight, Sparkles, Target, ListChecks } from "lucide-react";
+import { ArrowRight, BarChart3, CheckCircle2, IndianRupee, ShieldCheck } from "lucide-react";
+
+const snapshot = [
+  { label: "Budget", value: "Rs. 8-18 lakh", icon: IndianRupee },
+  { label: "Use case", value: "Family + city", icon: CheckCircle2 },
+  { label: "Priority", value: "Safety first", icon: ShieldCheck },
+];
+
+const sampleMatches = [
+  { name: "Tata Nexon EV", score: 91, note: "safe, efficient, city-friendly" },
+  { name: "Hyundai Creta", score: 86, note: "feature-rich diesel SUV" },
+  { name: "Toyota Hyryder", score: 83, note: "hybrid running cost edge" },
+];
 
 export default function HomePage() {
   return (
     <div>
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 text-white">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggIGQ9Ik0zNiAzNGg0djJoLTR6bS0yMCAyMGg0djJoLTR6bTIwLTIwaDR2MmgtNHptLTIwIDIwaDR2MmgtNHptMjAtMjBoNHYyaC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
-        <div className="relative mx-auto max-w-6xl px-4 py-20 md:py-28">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm backdrop-blur">
-            <Sparkles className="h-4 w-4" />
-            CarDekho Group — AI Assignment
-          </p>
-          <h1 className="max-w-2xl text-4xl font-bold leading-tight md:text-5xl">
-            From &ldquo;I don&apos;t know what to buy&rdquo; to a confident shortlist
-          </h1>
-          <p className="mt-5 max-w-xl text-lg text-brand-100">
-            Answer a few questions about your budget and priorities. We&apos;ll rank 35+ cars and
-            explain why each one fits — then save your favorites to compare.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Link
-              href="/find"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-brand-700 shadow-lg transition hover:bg-brand-50"
-            >
-              Start finding cars
-              <ArrowRight className="h-5 w-5" />
-            </Link>
-            <Link
-              href="/shortlist"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-6 py-3 font-semibold text-white transition hover:bg-white/10"
-            >
-              View shortlist
-            </Link>
+      <section className="border-b border-stone-200 bg-white">
+        <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-10 px-4 py-12 md:grid-cols-[1fr_0.9fr] md:items-center md:py-16">
+          <div>
+            <p className="mb-4 inline-flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-700">
+              <BarChart3 className="h-4 w-4" />
+              CarDekho Group AI assignment
+            </p>
+            <h1 className="max-w-2xl text-4xl font-bold leading-tight text-ink-900 md:text-5xl">
+              CarMatch
+            </h1>
+            <p className="mt-5 max-w-xl text-lg text-stone-600">
+              A guided shortlist builder for buyers who know their budget, but not the right car.
+              It ranks Indian-market options, explains the tradeoffs, and lets the buyer compare
+              finalists without opening ten tabs.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/find"
+                className="inline-flex min-h-12 items-center gap-2 rounded-lg bg-brand-600 px-5 font-semibold text-white shadow-sm transition hover:bg-brand-700"
+              >
+                Start matching
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+              <Link
+                href="/shortlist"
+                className="inline-flex min-h-12 items-center rounded-lg border border-stone-300 px-5 font-semibold text-stone-700 transition hover:bg-stone-50"
+              >
+                View shortlist
+              </Link>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-stone-200 bg-road-50 p-4 shadow-sm">
+            <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-1">
+              {snapshot.map(({ label, value, icon: Icon }) => (
+                <div key={label} className="rounded-lg border border-stone-200 bg-white p-4">
+                  <Icon className="h-5 w-5 text-brand-600" />
+                  <p className="mt-3 text-xs font-semibold uppercase text-stone-500">{label}</p>
+                  <p className="mt-1 font-bold text-ink-900">{value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 rounded-lg border border-stone-200 bg-white">
+              <div className="border-b border-stone-100 px-4 py-3">
+                <p className="text-sm font-semibold text-ink-900">Example ranked output</p>
+              </div>
+              <div className="divide-y divide-stone-100">
+                {sampleMatches.map((match, index) => (
+                  <div key={match.name} className="flex items-center justify-between gap-4 px-4 py-3">
+                    <div>
+                      <p className="text-sm font-bold text-ink-900">
+                        #{index + 1} {match.name}
+                      </p>
+                      <p className="text-xs text-stone-500">{match.note}</p>
+                    </div>
+                    <span className="rounded-md bg-emerald-100 px-2.5 py-1 text-sm font-bold text-emerald-800">
+                      {match.score}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="text-center text-2xl font-bold text-slate-900">How it works</h2>
-        <div className="mt-10 grid gap-8 md:grid-cols-3">
+      <section className="mx-auto max-w-6xl px-4 py-12">
+        <div className="grid gap-4 md:grid-cols-3">
           {[
-            {
-              icon: Target,
-              title: "Tell us what matters",
-              desc: "Budget, body type, fuel preference, and what you care about most — mileage, safety, or value.",
-            },
-            {
-              icon: Sparkles,
-              title: "Get ranked matches",
-              desc: "Our scoring engine ranks cars and explains why each one fits your needs — no black box.",
-            },
-            {
-              icon: ListChecks,
-              title: "Build your shortlist",
-              desc: "Save up to 5 favorites and compare them side-by-side on price, mileage, safety, and features.",
-            },
-          ].map(({ icon: Icon, title, desc }) => (
-            <div
-              key={title}
-              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-            >
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-                <Icon className="h-6 w-6" />
-              </div>
-              <h3 className="font-semibold text-slate-900">{title}</h3>
-              <p className="mt-2 text-sm text-slate-600">{desc}</p>
+            ["Guided input", "Budget, fuel, body type, seating, and priorities stay explicit."],
+            ["Explainable ranking", "Every recommendation carries buyer-facing reasons."],
+            ["Shortlist compare", "Save up to five cars and compare two or three side-by-side."],
+          ].map(([title, desc]) => (
+            <div key={title} className="border-l-4 border-brand-600 bg-white p-5 shadow-sm">
+              <h2 className="font-bold text-ink-900">{title}</h2>
+              <p className="mt-2 text-sm text-stone-600">{desc}</p>
             </div>
           ))}
         </div>
