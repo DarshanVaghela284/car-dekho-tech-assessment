@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ensureDbSeeded } from "@/lib/db-init";
 import { prisma } from "@/lib/prisma";
 import { v4 as uuidv4 } from "uuid";
 
@@ -24,6 +25,7 @@ async function getOrCreateShortlist(sessionId: string) {
 }
 
 export async function GET(request: NextRequest) {
+  await ensureDbSeeded();
   const sessionId = getSessionId(request);
   const shortlist = await getOrCreateShortlist(sessionId);
 
@@ -48,6 +50,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  await ensureDbSeeded();
   const sessionId = getSessionId(request);
   const { carId } = await request.json();
 
@@ -94,6 +97,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  await ensureDbSeeded();
   const sessionId = getSessionId(request);
   const { carId } = await request.json();
 

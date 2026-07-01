@@ -46,5 +46,5 @@ The assignment is intentionally open-ended, so I scoped for a complete buyer jou
 ## Submission Checklist
 
 - GitHub repo: publish this repository or invite the reviewers.
-- Live URL: deploy to Vercel, then set `DATABASE_URL` for the deployment environment.
+- Live URL: deploy to Vercel. You do not need to set `DATABASE_URL` — the app auto-creates a SQLite database in `/tmp` on first request and seeds it with car data.
 - Screen recording: show the flow from buyer brief to recommendations, shortlist, and comparison.

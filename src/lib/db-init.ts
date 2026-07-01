@@ -1,3 +1,4 @@
+import { ensureDatabaseReady } from "./database";
 import { prisma } from "./prisma";
 import { CAR_SEED_DATA } from "./seed-data";
 
@@ -5,6 +6,7 @@ let initialized = false;
 
 export async function ensureDbSeeded() {
   if (initialized) return;
+  await ensureDatabaseReady(prisma);
   const count = await prisma.car.count();
   if (count === 0) {
     for (const car of CAR_SEED_DATA) {
